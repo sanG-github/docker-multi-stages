@@ -3,15 +3,33 @@ version: '3.2'
 services:
   db:
     image: postgres:15.2
-    container_name: multi-stages-db
+    container_name: multi-stages_db
     environment:
-      - POSTGRES_DB=multi_stages_development
+      - POSTGRES_DB=multi-stages_development
       - POSTGRES_PASSWORD=postgres
+
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:6.2.7
-    container_name: multi-stages-redis
+    image: redis:7.0
+    container_name: multi-stages_redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  prism:
+    image: stoplight/prism:4
+    container_name: multi-stages_prism
+    command: 'mock -h 0.0.0.0 /docs/openapi/openapi.yml'
+    volumes:
+      - ./docs:/docs
+    ports:
+      - "4010:4010"
+
+volumes:
+  postgres_data:
+  redis_data:

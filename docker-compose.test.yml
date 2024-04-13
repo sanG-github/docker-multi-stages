@@ -3,16 +3,16 @@ version: '3.2'
 services:
   db:
     image: postgres:15.2
-    container_name: multi-stages-db
+    container_name: multi-stages_db
     environment:
-      - POSTGRES_DB=multi_stages_test
+      - POSTGRES_DB=multi-stages_test
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432"
 
   redis:
-    image: redis:6.2.7
-    container_name: multi-stages-redis
+    image: redis:7.0
+    container_name: multi-stages_db
     ports:
       - "6379"
 
@@ -20,13 +20,13 @@ services:
     build:
       context: .
       cache_from:
-        - ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE}:${BRANCH_TAG}-test
+        - ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BRANCH_TAG}-test
       args:
         - BUILD_ENV=test
         - RUBY_ENV=test
         - NODE_ENV=test
-    image: ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE}:${BRANCH_TAG}-test
-    container_name: multi-stages-test
+    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BRANCH_TAG}-test
+    container_name: multi-stages_test
     command: bin/test.sh
     stdin_open: true
     tty: true
@@ -34,9 +34,8 @@ services:
       - db
     volumes:
       - "ruby-bundle:/bundle"
-      - "${PWD}/tmp/screenshots:/multi_stages/tmp/screenshots"
-      - "${PWD}/coverage:/multi_stages/coverage"
-      - "${PWD}/log:/multi_stages/log"
+      - "${PWD}/tmp/screenshots:/multi-stages/tmp/screenshots"
+      - "${PWD}/log:/multi-stages/log"
     environment:
       - RACK_ENV=test
       - RAILS_ENV=test
@@ -44,8 +43,7 @@ services:
       - DB_HOST=db
       - CI=$CI
       - TEST_RETRY=$TEST_RETRY
-      - PORT=$PORT
-      - DANGER_GITHUB_API_TOKEN=$DANGER_GITHUB_API_TOKEN
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
 volumes:
   ruby-bundle:
