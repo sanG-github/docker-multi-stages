@@ -2,6 +2,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  config.hosts = [ENV.fetch('APP_HOST', '')]
 
   # Code is not reloaded between requests.
   config.enable_reloading = false
@@ -86,7 +87,7 @@ Rails.application.configure do
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
-  
+
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
