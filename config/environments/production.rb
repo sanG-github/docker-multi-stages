@@ -77,8 +77,8 @@ Rails.application.configure do
   config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST')
 
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('MAILER_DEFAULT_HOST'),
-    port: ENV.fetch('MAILER_DEFAULT_PORT')
+    host: ENV.fetch('MAILER_DEFAULT_HOST', 'localhost'),
+    port: ENV.fetch('MAILER_DEFAULT_PORT', '3000')
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.
