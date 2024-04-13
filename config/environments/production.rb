@@ -2,6 +2,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  config.hosts = [ENV.fetch('APP_HOST', '')]
 
   # Code is not reloaded between requests.
   config.enable_reloading = false
@@ -73,11 +74,11 @@ Rails.application.configure do
 
   config.action_mailer.perform_caching = false
 
-  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST')
+  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST', 'localhost')
 
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('MAILER_DEFAULT_HOST'),
-    port: ENV.fetch('MAILER_DEFAULT_PORT')
+    host: ENV.fetch('MAILER_DEFAULT_HOST', 'localhost'),
+    port: ENV.fetch('MAILER_DEFAULT_PORT', '3000')
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.
@@ -86,7 +87,7 @@ Rails.application.configure do
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
-  
+
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
@@ -101,4 +102,6 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  config.hosts << "multi-stages-staging-2b29c88c4721.herokuapp.com"
 end

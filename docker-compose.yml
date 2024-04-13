@@ -3,15 +3,15 @@ version: '3.2'
 services:
   db:
     image: postgres:15.2
-    container_name: multi-stages-db
+    container_name: multi-stages_db
     environment:
-      - POSTGRES_DB=multi_stages_production
+      - POSTGRES_DB=multi-stages_production
     ports:
       - "5432:5432"
 
   redis:
-    image: redis:6.2.7
-    container_name: multi-stages-redis
+    image: redis:7.0
+    container_name: multi-stages_redis
     ports:
       - "6379:6379"
 
@@ -25,8 +25,15 @@ services:
         - RUBY_ENV=production
         - NODE_ENV=production
         - ASSET_HOST
+        - MAILGUN_SMTP_PORT
+        - MAILGUN_SMTP_SERVER
+        - MAILGUN_SMTP_LOGIN
+        - MAILGUN_SMTP_PASSWORD
+        - APP_DOMAIN
+        - BASIC_AUTHENTICATION_USERNAME
+        - BASIC_AUTHENTICATION_PASSWORD
     image: ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE}:${BRANCH_TAG}
-    container_name: multi-stages-web
+    container_name: multi-stages_web
     command: bin/start.sh
     ports:
       - "${PORT}:${PORT}"
@@ -40,7 +47,7 @@ services:
       - RACK_ENV=production
       - RAILS_ENV=production
       - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres@db/multi_stages_production
+      - DATABASE_URL=postgres://postgres@db/multi-stages_production
       - ASSET_HOST
       - DEFAULT_HOST
       - MAILER_SENDER

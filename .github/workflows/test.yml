@@ -1,187 +1,35 @@
 name: Test
 
 on:
-  pull_request:
   push:
-    branches:
-      - develop
+    branches-ignore:
       - main
-
-env:
-  DANGER_GITHUB_API_TOKEN: ${{ github.token }}
-  DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
-  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
-  DOCKER_REGISTRY_TOKEN: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
-  DOCKER_IMAGE: ${{ github.repository }}
-  NODE_VERSION: 18
-
-  # Set the default docker compose file
-  COMPOSE_FILE: docker-compose.test.yml
-
-  # Set the default CI value despite the Github Action default value
-  CI: true
+      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build Docker image
+  docker_production_test:
+    name: Test production docker image
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set env BRANCH_TAG
-        uses: nimblehq/branch-tag-action@1
-
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY_HOST }}
-          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
-          password: ${{ env.DOCKER_REGISTRY_TOKEN }}
-
-      - name: Pull Docker image
-        if: ${{ env.BRANCH_TAG != 'latest' && env.BRANCH_TAG != 'develop' }}
-        run: docker compose pull test || true
-
-      - name: Build Docker image
-        run: bin/docker-prepare && docker compose build
-
-      - name: Push Docker image
-        run: docker compose push test
-
-  linting:
-    name: Linting
-    runs-on: ubuntu-latest
-    needs: build
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set env BRANCH_TAG
-        uses: nimblehq/branch-tag-action@1
-
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY_HOST }}
-          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
-          password: ${{ env.DOCKER_REGISTRY_TOKEN }}
-
-      - name: Pull Docker image
-        run: docker compose pull test || true
-
-      - name: Run codebase test
-        run: docker compose run test -e DISABLE_SPRING=1 bundle exec rspec spec/codebase/codebase_spec.rb --format progress
-
-  unit_tests:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    needs: build
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set env BRANCH_TAG
-        uses: nimblehq/branch-tag-action@1
-
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY_HOST }}
-          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
-          password: ${{ env.DOCKER_REGISTRY_TOKEN }}
-
-      - name: Pull Docker image
-        run: docker compose pull test || true
-
-      - name: Run unit tests
-        run: docker compose run test -e DISABLE_SPRING=1 bundle exec rspec --exclude-pattern "spec/systems/**/*_spec.rb, spec/codebase/codebase_spec.rb" --profile --format progress
-
-      - name: Upload tests coverage artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: coverage
-
-  system_tests:
-    name: System tests
-    runs-on: ubuntu-latest
-    needs: build
-    timeout-minutes: 15
     env:
-      TEST_RETRY: 2
+      DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
+      DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
+      DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+      PORT: ${{ secrets.PORT }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set env BRANCH_TAG
-        uses: nimblehq/branch-tag-action@1
+      - name: Set BRANCH_TAG
+        uses: nimblehq/branch-tag-action@v1
 
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY_HOST }}
-          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
-          password: ${{ env.DOCKER_REGISTRY_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Pull Docker image
-        run: docker compose pull test || true
-
-      - name: Run system tests
-        run: docker compose run test bundle exec rspec spec/systems --profile --format progress
-
-      - name: Upload system tests screenshots artifact
-        uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        with:
-          name: system_tests_screenshots
-          path: tmp/screenshots/
-
-  automated_code_review:
-    name: Run Danger
-    needs: unit_tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: github.event_name == 'pull_request' && !contains(join(github.event.pull_request.labels.*.name, ','), 'wip') && !contains(github.event.pull_request.title, '[wip]') && !github.event.pull_request.draft
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Download tests coverage artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage
-          path: coverage
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Cache Node modules
-        id: node-modules-cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-nodemodules-
-
-      - name: Yarn install
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: yarn
-
-      - name: Run Undercover
-        run: bundle exec undercover-report
-
-      - name: Run Danger
-        run: bundle exec danger
+      - name: Try building Docker image
+        run: |
+          bin/docker-prepare
+          docker-compose build

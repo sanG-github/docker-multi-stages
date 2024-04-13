@@ -2,6 +2,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  config.hosts = [ENV.fetch('APP_HOST', '')]
 
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
@@ -43,11 +44,11 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :letter_opener
 
-  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST')
+  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST', 'localhost')
 
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('MAILER_DEFAULT_HOST'),
-    port: ENV.fetch('MAILER_DEFAULT_PORT')
+    host: ENV.fetch('MAILER_DEFAULT_HOST', 'localhost'),
+    port: ENV.fetch('MAILER_DEFAULT_PORT', '3000')
   }
 
   # Print deprecation notices to the Rails logger.
@@ -91,4 +92,6 @@ Rails.application.configure do
     Bullet.rails_logger  = true
     Bullet.add_footer    = true
   end
+
+  config.hosts << "multi-stages-staging-2b29c88c4721.herokuapp.com"
 end
