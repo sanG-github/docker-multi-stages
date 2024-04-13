@@ -3,10 +3,11 @@ name: Deploy
 on:
   workflow_run:
     workflows:
-      - Test
+      - Docker build test
     branches:
       - main
       - develop
+      - feature/test-docker-multi-stages
     types:
       - completed
   workflow_dispatch:
