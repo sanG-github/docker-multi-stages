@@ -1,0 +1,31 @@
+{
+  "name": "multi_stages",
+  "private": "true",
+  "dependencies": {
+    "autoprefixer": "10.4.19",
+    "esbuild": "0.20.2",
+    "i18n-js": "3.8.0",
+    "postcss": "8.4.38",
+    "postcss-cli": "11.0.0",
+    "sass": "1.75.0"
+  },
+  "devDependencies": {
+    "@nimblehq/eslint-config-nimble-core": "2.8.1",
+    "@nimblehq/stylelint-config-nimble": "1.1.0",
+    "eslint": "9.0.0",
+    "stylelint": "^15"
+  },
+  "scripts": {
+    "eslint": "eslint . --color",
+    "eslint:fix": "eslint . --color --fix",
+    "stylelint": "stylelint **/*.scss --color",
+    "stylelint:fix": "stylelint **/*.scss --color --fix",
+    "codebase": "yarn eslint && yarn stylelint",
+    "codebase:fix": "yarn eslint:fix && yarn stylelint:fix",
+    "build": "node app/javascript/build.js",
+    "build:css-dev": "sass  app/assets/stylesheets/application.scss app/assets/builds/application.css --source-map-urls=absolute --load-path=node_modules",
+    "build:css": "yarn build:css-dev --source-map-urls=absolute --load-path=node_modules --style=compressed",
+    "postcss": "postcss  public/assets/*.css --dir public/assets --config ./",
+    "build:postcss": "postcss  app/assets/builds/*.css --dir app/assets/builds --config ./,"
+  }
+}

@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  db:
+    image: postgres:15.2
+    container_name: multi-stages-db
+    environment:
+      - POSTGRES_DB=multi_stages_development
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6.2.7
+    container_name: multi-stages-redis
+    ports:
+      - "6379:6379"

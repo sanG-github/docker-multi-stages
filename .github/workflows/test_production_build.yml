@@ -1,0 +1,28 @@
+name: Test production build
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+
+env:
+  DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
+  DOCKER_IMAGE: ${{ github.repository }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker_production_build_test:
+    name: Build Docker production image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set env BRANCH_TAG
+        uses: nimblehq/branch-tag-action@1
+
+      - name: Build Docker image
+        run: bin/docker-prepare && docker compose build
