@@ -93,5 +93,5 @@ Rails.application.configure do
     Bullet.add_footer    = true
   end
 
-  config.hosts << /[a-z0-9]+\.herokuapp\.com/
+  config.hosts << "multi-stages-staging-2b29c88c4721.herokuapp.com"
 end
