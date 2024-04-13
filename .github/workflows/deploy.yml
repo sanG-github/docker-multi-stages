@@ -7,13 +7,12 @@ on:
     branches:
       - main
       - develop
-      - feature/test-docker-multi-stages
     types:
       - completed
   workflow_dispatch:
   push:
     branches:
-      - poc/docker-multi-stages
+      - feature/test-docker-multi-stages
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
