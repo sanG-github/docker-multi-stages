@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
-      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+      DOCKER_REGISTRY_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
       DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
       PORT: ${{ secrets.PORT }}
     steps:

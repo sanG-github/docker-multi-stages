@@ -19,7 +19,7 @@ services:
     build:
       context: .
       cache_from:
-        - ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BRANCH_TAG}
+        - ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE}:${BRANCH_TAG}
       args:
         - BUILD_ENV=production
         - RUBY_ENV=production
@@ -32,7 +32,7 @@ services:
         - APP_DOMAIN
         - BASIC_AUTHENTICATION_USERNAME
         - BASIC_AUTHENTICATION_PASSWORD
-    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BRANCH_TAG}
+    image: ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE}:${BRANCH_TAG}
     container_name: multi-stages_web
     command: bin/start.sh
     ports:
