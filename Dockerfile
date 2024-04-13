@@ -1,6 +1,4 @@
-ARG RUBY_VERSION=3.2.2
-
-FROM ruby:$RUBY_VERSION-slim as base
+FROM ruby:3.2.2-slim as base
 
 ARG BUILD_ENV=development
 ARG RUBY_ENV=development
@@ -72,7 +70,6 @@ RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-
 # Compile assets
 FROM builder AS assets
 
@@ -101,9 +98,8 @@ RUN yarn install
 COPY --from=bundler $BUNDLE_PATH $BUNDLE_PATH
 COPY . ./
 
-RUN bundle exec rails i18n:js:export
-RUN bundle exec rails assets:precompile
-# RUN yarn run build:docs
+# Compile assets
+RUN bin/docker-assets-precompile
 
 # Final image
 FROM builder AS app

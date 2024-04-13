@@ -74,7 +74,7 @@ Rails.application.configure do
 
   config.action_mailer.perform_caching = false
 
-  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST')
+  config.action_mailer.asset_host = ENV.fetch('MAILER_DEFAULT_HOST', 'localhost')
 
   config.action_mailer.default_url_options = {
     host: ENV.fetch('MAILER_DEFAULT_HOST', 'localhost'),
