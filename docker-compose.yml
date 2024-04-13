@@ -36,7 +36,7 @@ services:
     container_name: multi-stages_web
     command: bin/start.sh
     ports:
-      - "80:80"
+      - "${PORT}:${PORT}"
     stdin_open: true
     tty: true
     depends_on:

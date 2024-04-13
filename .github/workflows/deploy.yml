@@ -23,7 +23,8 @@ env:
   DOCKER_USERNAME: ${{ github.repository_owner }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-  DOCKER_IMAGE: ${{ github.repository }}
+  DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+  PORT: ${{ secrets.PORT }}
 
 jobs:
   deploy:
